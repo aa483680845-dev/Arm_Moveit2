@@ -27,7 +27,7 @@ def generate_launch_description():
 
     moveit_interface_node = Node(
     package="moveit_interfaces",
-    executable="moveit_interface_main",
+    executable="moveit_cartesian",
     output="screen",
     parameters=[
         moveit_config.robot_description,

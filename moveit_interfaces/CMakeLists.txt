@@ -16,8 +16,18 @@ find_package(tf2_eigen REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 add_executable(moveit_interface_main src/moveit_interface_main.cpp)
-
+add_executable(moveit_cartesian src/moveit_cartesian.cpp)
 ament_target_dependencies(moveit_interface_main
+  rclcpp
+  moveit_ros_planning_interface
+  moveit_visual_tools
+  moveit
+  tf2_geometry_msgs
+  tf2_eigen
+  moveit_msgs
+  tf2
+)
+ament_target_dependencies(moveit_cartesian
   rclcpp
   moveit_ros_planning_interface
   moveit_visual_tools
@@ -41,7 +51,7 @@ if(BUILD_TESTING)
 endif()
 
 install(TARGETS
-  moveit_interface_main
+  moveit_interface_main moveit_cartesian
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
