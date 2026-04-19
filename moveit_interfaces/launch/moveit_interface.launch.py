@@ -1,35 +1,22 @@
-import os
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import ExecuteProcess
-from ament_index_python.packages import get_package_share_directory
-from moveit_configs_utils import MoveItConfigsBuilder
+from launch.substitutions import PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from moveit_utils import get_moveit_config
 
 def generate_launch_description():
     
-    robot_description_path = os.path.join(
-        get_package_share_directory("robot_config"),
-        "config",
-        "robot_1.urdf.xacro",
+   
+    rviz_config_path = PathJoinSubstitution(
+        [FindPackageShare("robot_config"), "config", "moveit.rviz"]
     )
-    tarjectory_execution_path = os.path.join(
-        get_package_share_directory("robot_config"),
-        "config",
-        "moveit_controllers.yaml",
-    )   
-    rviz_config_path = os.path.join(
-        get_package_share_directory("robot_config"),
-        "config",
-        "moveit.rviz",
-    )
+    moveit_config = get_moveit_config()
 
-    moveit_config = (
-        MoveItConfigsBuilder("robot_1",package_name="robot_config")
-        .robot_description(file_path = robot_description_path)
-        .trajectory_execution(file_path = tarjectory_execution_path)
-        .to_moveit_configs()
-    )
-    
     run_move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
@@ -67,11 +54,12 @@ def generate_launch_description():
         parameters=[moveit_config.robot_description],
 )
 
-    ros2_controllers_path = os.path.join(
-    get_package_share_directory("robot_config"),
-    "config",
-    "ros2_controllers.yaml",
-)
+    ros2_controllers_path = PathJoinSubstitution(
+        [FindPackageShare("robot_config"), 
+         "config", 
+         "ros2_controllers.yaml"]
+    )
+
     ros2_control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
@@ -94,7 +82,6 @@ def generate_launch_description():
                 output="screen",
             )
         ]
-
 
 
     return LaunchDescription(

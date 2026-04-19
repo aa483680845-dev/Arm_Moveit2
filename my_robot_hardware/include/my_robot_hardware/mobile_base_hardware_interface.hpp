@@ -35,7 +35,6 @@ namespace mobile_base_hardware
           double kd_[kNumJoints];
 
           // 状态滤波
-          double joint_state_pos[kNumJoints];
           double joint_last_state_pos[kNumJoints];
 
           damiao_handle *handle;

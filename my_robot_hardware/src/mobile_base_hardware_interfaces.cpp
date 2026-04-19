@@ -130,8 +130,6 @@ namespace mobile_base_hardware
        joint_last_state_pos[i] = q;  // 初始化滤波历史，避免上电跳零
        std::string joint = "joint_" + std::to_string(i + 1);
        set_command(joint + "/position", q);
-       set_command(joint + "/velocity", 0.0);
-       set_command(joint + "/effort",   0.0);
        RCLCPP_INFO(rclcpp::get_logger("MobileBaseHardwareInterface"),
                    "joint_%d 初始命令: pos=%.4f rad, vel=0, eff=0", i + 1, q);
     }
@@ -166,7 +164,6 @@ namespace mobile_base_hardware
       filtered = alpha * q + (1 - alpha) * joint_last_state_pos[i];  // 低通滤波
     }
     joint_last_state_pos[i] = filtered;  // 用滤波后的值更新历史
-    joint_state_pos[i] = filtered;
 
     std::string joint = "joint_" + std::to_string(i + 1);
     set_state(joint + "/position", filtered);
@@ -180,17 +177,15 @@ namespace mobile_base_hardware
     (void)time;
     (void)period;
 
+    static int nan_count[kNumJoints] = {};
     for (int i = 0; i < kNumJoints; i++)
     {
       std::string joint = "joint_" + std::to_string(i + 1);
       double cmd_pos = get_command(joint + "/position");
-      double cmd_vel = get_command(joint + "/velocity");
-      double cmd_eff = get_command(joint + "/effort");
 
       // NaN 保护：任意分量异常则保持当前状态，跳过本帧发送
-      if (std::isnan(cmd_pos) || std::isnan(cmd_vel) || std::isnan(cmd_eff))
+      if (std::isnan(cmd_pos))
       {
-        static int nan_count[kNumJoints] = {};
         if (++nan_count[i] >= 10)
         {
           RCLCPP_WARN(rclcpp::get_logger("MobileBaseHardwareInterface"),
@@ -201,7 +196,7 @@ namespace mobile_base_hardware
       }
 
       // 透传：pos / vel / eff 全部来自控制器，hardware 不做任何计算
-      dm_control_mit(dev_list[0], kMotorIds[i], kp_[i], kd_[i], cmd_pos, cmd_vel, cmd_eff);
+      dm_control_mit(dev_list[0], kMotorIds[i], kp_[i], kd_[i], cmd_pos, 0.0, 0.0);
     }
     return hardware_interface::return_type::OK;
   }
