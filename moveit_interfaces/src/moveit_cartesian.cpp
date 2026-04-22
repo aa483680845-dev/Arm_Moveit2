@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 
     RCLCPP_INFO(LOGGER, "Cartesian path success rate: %.2f%%", fraction * 100.0);
 
-    if (fraction > 0.9)
+    if (fraction > 0.6)
     {
         moveit::planning_interface::MoveGroupInterface::Plan my_plan;
         my_plan.trajectory = trajectory;

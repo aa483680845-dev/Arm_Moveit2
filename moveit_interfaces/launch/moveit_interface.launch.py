@@ -1,4 +1,3 @@
-
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import ExecuteProcess
@@ -32,9 +31,9 @@ def generate_launch_description():
     parameters=[
         moveit_config.robot_description,
         moveit_config.robot_description_semantic,
-        moveit_config.robot_description_kinematics,
+        # moveit_config.robot_description_kinematics,
         moveit_config.planning_pipelines,
-        moveit_config.joint_limits,
+        # moveit_config.joint_limits,
     ],
     )
 
