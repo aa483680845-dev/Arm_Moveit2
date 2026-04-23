@@ -1,0 +1,11 @@
+move_group_interface_tutorial:
+  ros__parameters:
+    # 各路径点相对于起始点的位置偏移量（米）
+    waypoint_dx: [0.10,  0.15, 0.20, 0.20]
+    waypoint_dy: [0.0,  0.05,  0.06, 0.09]
+    waypoint_dz: [0.05, 0.10, 0.15,  0.10]
+
+    # 笛卡尔路径规划参数
+    eef_step: 0.01               # 末端执行器插值步长（米）
+    jump_threshold: 0.0          # 关节跳变阈值，0.0 表示禁用（仿真环境）
+    success_fraction_threshold: 0.6  # 规划成功率阈值

@@ -4,10 +4,11 @@
 #include <moveit_msgs/msg/display_trajectory.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <moveit_visual_tools/moveit_visual_tools.h>
 
 static const rclcpp::Logger LOGGER = rclcpp::get_logger("move_group_demo");
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
     rclcpp::NodeOptions node_options;
@@ -17,62 +18,112 @@ int main(int argc, char** argv)
 
     rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(move_group_node);
-    std::thread spin_thread([&executor]() { executor.spin(); });
+    std::thread spin_thread([&executor]()
+                            { executor.spin(); });
 
-    /********************************************************************************/
     static const std::string PLANNING_GROUP = "arm";
     moveit::planning_interface::MoveGroupInterface move_group(move_group_node, PLANNING_GROUP);
-
 
     RCLCPP_INFO(LOGGER, "Planning frame: %s", move_group.getPlanningFrame().c_str());
     RCLCPP_INFO(LOGGER, "End effector link: %s", move_group.getEndEffectorLink().c_str());
 
+    auto moveit_visual_tools = moveit_visual_tools::MoveItVisualTools{
+        move_group_node,
+        "base_link",
+        rviz_visual_tools::RVIZ_MARKER_TOPIC,
+        move_group.getRobotModel()};
+
+    moveit_visual_tools.deleteAllMarkers();
+    moveit_visual_tools.loadRemoteControl();
+
     rclcpp::sleep_for(std::chrono::seconds(1));
-    
+
+    auto get_double = [&](const std::string &name, double def)
+    {
+        return move_group_node->has_parameter(name)
+                   ? move_group_node->get_parameter(name).as_double()
+                   : def;
+    };
+    auto get_double_array = [&](const std::string &name, std::vector<double> def)
+    {
+        return move_group_node->has_parameter(name)
+                   ? move_group_node->get_parameter(name).as_double_array()
+                   : def;
+    };
+    auto const draw_title = [&moveit_visual_tools](auto text)
+    {
+        auto const text_pose = []
+        {
+            auto msg = Eigen::Isometry3d::Identity();
+            msg.translation().z() = 0.5;
+            return msg;
+        }();
+        moveit_visual_tools.publishText(text_pose, text, rviz_visual_tools::WHITE,
+                                        rviz_visual_tools::XLARGE);
+    };
+
+    auto const prompt = [&moveit_visual_tools](auto text)
+    {
+        moveit_visual_tools.prompt(text);
+    };
+
+    auto dx = get_double_array("waypoint_dx", {});
+    auto dy = get_double_array("waypoint_dy", {});
+    auto dz = get_double_array("waypoint_dz", {});
+    double eef_step = get_double("eef_step", 0.01);
+    double jump_threshold = get_double("jump_threshold", 0.0);
+    double success_threshold = get_double("success_fraction_threshold", 0.6);
+
+    if (dx.size() != dy.size() || dx.size() != dz.size())
+    {
+        RCLCPP_ERROR(LOGGER, "waypoint_dx/dy/dz must have the same length!");
+        rclcpp::shutdown();
+        spin_thread.join();
+        return 1;
+    }
+
+    /********************************************************************************/
     geometry_msgs::msg::Pose start_pose = move_group.getCurrentPose().pose;
 
     std::vector<geometry_msgs::msg::Pose> waypoints;
-
     waypoints.push_back(start_pose);
-
-    geometry_msgs::msg::Pose p1 = start_pose;
-    p1.position.z += 0.05;
-    waypoints.push_back(p1);
-
-    geometry_msgs::msg::Pose p2 = p1;
-    p2.position.x += 0.1;
-    waypoints.push_back(p2);
-
-    geometry_msgs::msg::Pose p3 = p2;
-    p3.position.z -= 0.05;
-    p3.position.x -= 0.1;
-    waypoints.push_back(p3);
-
+    for (size_t i = 0; i < dx.size(); ++i)
+    {
+        geometry_msgs::msg::Pose p = start_pose;
+        p.position.x += dx[i];
+        p.position.y += dy[i];
+        p.position.z += dz[i];
+        waypoints.push_back(p); //将路径点加入到waypoints中，这里是相当于base_link坐标系下的路径点
+    }
+    waypoints.push_back(start_pose); // 最后返回起始点
+    RCLCPP_INFO(LOGGER, "Loaded %zu waypoints from config", dx.size());
     moveit_msgs::msg::RobotTrajectory trajectory;
-    const double eef_step = 0.01;       // 1cm 插值
-    const double jump_threshold = 0.0;  // 仿真环境：禁用关节跳变检测
-
-    double fraction = move_group.computeCartesianPath(
-        waypoints,
-        eef_step,
-        jump_threshold,
-        trajectory);
+    double fraction = move_group.computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory);
 
     RCLCPP_INFO(LOGGER, "Cartesian path success rate: %.2f%%", fraction * 100.0);
 
-    if (fraction > 0.6)
+    /********************************************************************************/
+    // 可视化路径点
+    moveit_visual_tools.deleteAllMarkers(); //清除之前的rviz可视化
+    moveit_visual_tools.publishPath(waypoints, rviz_visual_tools::LIME_GREEN, rviz_visual_tools::XXXXSMALL);//发布路径点
+    for (std::size_t i = 0; i < waypoints.size(); ++i)
+        moveit_visual_tools.publishAxisLabeled(waypoints[i], "pt" + std::to_string(i), rviz_visual_tools::XXSMALL);//发布路径点的坐标轴
+    moveit_visual_tools.trigger(); //将上面的可视化消息一次性发布到RViz
+
+    /********************************************************************************/
+    if (fraction > success_threshold)
     {
         moveit::planning_interface::MoveGroupInterface::Plan my_plan;
         my_plan.trajectory = trajectory;
         rclcpp::sleep_for(std::chrono::milliseconds(500)); // 等待 RViz 接收消息
         RCLCPP_INFO(LOGGER, "Executing cartesian plan...");
+
         move_group.execute(my_plan);
     }
     else
     {
         RCLCPP_ERROR(LOGGER, "Cartesian path planning failed! Only %.2f%% completed.", fraction * 100.0);
     }
-
     rclcpp::shutdown();
     spin_thread.join();
     return 0;

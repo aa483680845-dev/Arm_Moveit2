@@ -22,7 +22,6 @@ int main(int argc, char** argv)
 
     /********************************************************************************/
 
-
     static const std::string PLANNING_GROUP = "arm";
     moveit::planning_interface::MoveGroupInterface move_group(move_group_node, PLANNING_GROUP);
 
@@ -60,10 +59,11 @@ int main(int argc, char** argv)
     auto const draw_trajectory_tool_path =
         [&moveit_visual_tools,
          jmg = move_group.getRobotModel()->getJointModelGroup(
-             "arm")](auto const trajectory)
+             PLANNING_GROUP)](auto const trajectory)
     {
         moveit_visual_tools.publishTrajectoryLine(trajectory, jmg);
     };
+
 
     /********************************************************************************/
     // 从参数读取多个路径点
@@ -117,6 +117,14 @@ int main(int argc, char** argv)
 
         RCLCPP_INFO(LOGGER, "Waypoint %zu: (%.3f, %.3f, %.3f)", i, wp_x[i], wp_y[i], wp_z[i]);
     }
+
+    /********************************************************************************/
+    // 可视化路径点
+    moveit_visual_tools.deleteAllMarkers();
+    moveit_visual_tools.publishPath(waypoints, rviz_visual_tools::LIME_GREEN, rviz_visual_tools::SMALL);
+    for (std::size_t i = 0; i < waypoints.size(); ++i)
+        moveit_visual_tools.publishAxisLabeled(waypoints[i], "pt" + std::to_string(i), rviz_visual_tools::SMALL);
+    moveit_visual_tools.trigger();
 
     /********************************************************************************/
     // 关节空间规划：依次规划并执行到每个路径点
