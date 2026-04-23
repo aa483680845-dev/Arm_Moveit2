@@ -2,8 +2,13 @@ move_group_interface_tutorial:
   ros__parameters:
     # 各路径点相对于起始点的位置偏移量（米）
     waypoint_dx: [0.10,  0.15, 0.20, 0.20]
-    waypoint_dy: [0.0,  0.05,  0.06, 0.09]
+    waypoint_dy: [0.0,  -0.10,  0.06, 0.09]
     waypoint_dz: [0.05, 0.10, 0.15,  0.10]
+
+    # 各路径点相对于起始姿态的 RPY 偏移量（弧度），内旋（绕末端自身轴）
+    waypoint_droll:  [0.1, 0.0, 0.0, 0.0]
+    waypoint_dpitch: [0.0, 0.2, 0.0, 0.0]
+    waypoint_dyaw:   [0.0, 0.0, 0.1, 0.0]
 
     # 笛卡尔路径规划参数
     eef_step: 0.01               # 末端执行器插值步长（米）

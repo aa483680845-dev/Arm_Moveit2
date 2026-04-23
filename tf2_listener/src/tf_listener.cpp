@@ -1,9 +1,7 @@
 #include <memory>
 #include <chrono>
-
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
-
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/buffer.h"
 
@@ -18,7 +16,7 @@ public:
         tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
         tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
-        // 10 Hz
+        
         timer_ = this->create_wall_timer(
             100ms,
             std::bind(&EndEffectorTF::timerCallback, this)
@@ -33,7 +31,7 @@ private:
             geometry_msgs::msg::TransformStamped transformStamped =
                 tf_buffer_->lookupTransform(
                     "base_link",   // 目标坐标系
-                    "link_6",       // 末端执行器（按你实际改）
+                    "link_6",       // 末端执行器
                     tf2::TimePointZero   // 最新数据
                 );
 

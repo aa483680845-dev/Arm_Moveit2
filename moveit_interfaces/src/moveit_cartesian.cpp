@@ -67,16 +67,20 @@ int main(int argc, char **argv)
         moveit_visual_tools.prompt(text);
     };
 
-    auto dx = get_double_array("waypoint_dx", {});
-    auto dy = get_double_array("waypoint_dy", {});
-    auto dz = get_double_array("waypoint_dz", {});
-    double eef_step = get_double("eef_step", 0.01);
-    double jump_threshold = get_double("jump_threshold", 0.0);
+    auto dx     = get_double_array("waypoint_dx",     {});
+    auto dy     = get_double_array("waypoint_dy",     {});
+    auto dz     = get_double_array("waypoint_dz",     {});
+    auto droll  = get_double_array("waypoint_droll",  std::vector<double>(dx.size(), 0.0));
+    auto dpitch = get_double_array("waypoint_dpitch", std::vector<double>(dx.size(), 0.0));
+    auto dyaw   = get_double_array("waypoint_dyaw",   std::vector<double>(dx.size(), 0.0));
+    double eef_step          = get_double("eef_step", 0.01);
+    double jump_threshold    = get_double("jump_threshold", 0.0);
     double success_threshold = get_double("success_fraction_threshold", 0.6);
 
-    if (dx.size() != dy.size() || dx.size() != dz.size())
+    if (dx.size() != dy.size() || dx.size() != dz.size() ||
+        dx.size() != droll.size() || dx.size() != dpitch.size() || dx.size() != dyaw.size())
     {
-        RCLCPP_ERROR(LOGGER, "waypoint_dx/dy/dz must have the same length!");
+        RCLCPP_ERROR(LOGGER, "All waypoint arrays must have the same length!");
         rclcpp::shutdown();
         spin_thread.join();
         return 1;
@@ -84,6 +88,9 @@ int main(int argc, char **argv)
 
     /********************************************************************************/
     geometry_msgs::msg::Pose start_pose = move_group.getCurrentPose().pose;
+
+    tf2::Quaternion start_q;
+    tf2::fromMsg(start_pose.orientation, start_q);
 
     std::vector<geometry_msgs::msg::Pose> waypoints;
     waypoints.push_back(start_pose);
@@ -93,7 +100,13 @@ int main(int argc, char **argv)
         p.position.x += dx[i];
         p.position.y += dy[i];
         p.position.z += dz[i];
-        waypoints.push_back(p); //将路径点加入到waypoints中，这里是相当于base_link坐标系下的路径点
+
+        tf2::Quaternion delta_q;
+        delta_q.setRPY(droll[i], dpitch[i], dyaw[i]);
+        tf2::Quaternion result_q = (start_q * delta_q).normalized(); // 内旋：绕末端自身轴
+        p.orientation = tf2::toMsg(result_q);
+
+        waypoints.push_back(p);
     }
     waypoints.push_back(start_pose); // 最后返回起始点
     RCLCPP_INFO(LOGGER, "Loaded %zu waypoints from config", dx.size());
