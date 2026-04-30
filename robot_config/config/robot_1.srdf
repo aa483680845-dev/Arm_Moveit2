@@ -27,20 +27,20 @@
         <joint name="joint_6" value="0"/>
     </group_state>
     <group_state name="pose_1" group="arm">
-        <joint name="joint_1" value="0.8122"/>
-        <joint name="joint_2" value="0.3812"/>
-        <joint name="joint_3" value="0.4144"/>
-        <joint name="joint_4" value="0.5707"/>
-        <joint name="joint_5" value="-0.8785"/>
-        <joint name="joint_6" value="0.7127"/>
+        <joint name="joint_1" value="0.7459"/>
+        <joint name="joint_2" value="0.5801"/>
+        <joint name="joint_3" value="0.547"/>
+        <joint name="joint_4" value="0"/>
+        <joint name="joint_5" value="0"/>
+        <joint name="joint_6" value="0"/>
     </group_state>
     <group_state name="pose_2" group="arm">
-        <joint name="joint_1" value="-0.8453"/>
-        <joint name="joint_2" value="1.0442"/>
-        <joint name="joint_3" value="1.0773"/>
-        <joint name="joint_4" value="-1.8503"/>
-        <joint name="joint_5" value="1.442"/>
-        <joint name="joint_6" value="1.2099"/>
+        <joint name="joint_1" value="-0.3149"/>
+        <joint name="joint_2" value="0.8453"/>
+        <joint name="joint_3" value="0.8453"/>
+        <joint name="joint_4" value="-0.8453"/>
+        <joint name="joint_5" value="-0.3149"/>
+        <joint name="joint_6" value="0.6796"/>
     </group_state>
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
     <disable_collisions link1="base_link" link2="link_1" reason="Adjacent"/>

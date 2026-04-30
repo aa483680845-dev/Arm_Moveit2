@@ -19,7 +19,7 @@ int main(int argc, char **argv)
     rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(move_group_node);
     std::thread spin_thread([&executor]()
-                            { executor.spin(); });
+                            { executor.spin(); }); //分出一个线程用于执行接收和发送ros2消息，不影响主线程
 
     static const std::string PLANNING_GROUP = "arm";
     moveit::planning_interface::MoveGroupInterface move_group(move_group_node, PLANNING_GROUP);
@@ -103,8 +103,8 @@ int main(int argc, char **argv)
 
         tf2::Quaternion delta_q;
         delta_q.setRPY(droll[i], dpitch[i], dyaw[i]);
-        tf2::Quaternion result_q = (start_q * delta_q).normalized(); // 内旋：绕末端自身轴
-        p.orientation = tf2::toMsg(result_q);
+        tf2::Quaternion result_q = (start_q * delta_q).normalized(); // 内旋：绕末端自身轴，.normalized归一化，将四元数变为单位四元数
+        p.orientation = tf2::toMsg(result_q); //将四元数转换为消息ROS消息
 
         waypoints.push_back(p);
     }

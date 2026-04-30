@@ -5,11 +5,9 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /MotionPlanning1
-        - /TF1
         - /MarkerArray1
-        - /MarkerArray1/Status1
       Splitter Ratio: 0.5
-    Tree Height: 578
+    Tree Height: 332
   - Class: rviz_common/Help
     Name: Help
   - Class: rviz_common/Views
@@ -190,57 +188,11 @@ Visualization Manager:
         Show Robot Visual: true
       Value: true
       Velocity_Scaling_Factor: 0.1
-    - Class: rviz_default_plugins/TF
-      Enabled: true
-      Filter (blacklist): ""
-      Filter (whitelist): ""
-      Frame Timeout: 15
-      Frames:
-        All Enabled: true
-        base_link:
-          Value: true
-        link_1:
-          Value: true
-        link_2:
-          Value: true
-        link_3:
-          Value: true
-        link_4:
-          Value: true
-        link_5:
-          Value: true
-        link_6:
-          Value: true
-        world:
-          Value: true
-      Marker Scale: 0.30000001192092896
-      Name: TF
-      Show Arrows: true
-      Show Axes: true
-      Show Names: false
-      Tree:
-        world:
-          base_link:
-            link_1:
-              link_2:
-                link_3:
-                  link_4:
-                    link_5:
-                      link_6:
-                        {}
-      Update Interval: 0
-      Value: true
     - Class: rviz_default_plugins/MarkerArray
       Enabled: true
       Name: MarkerArray
       Namespaces:
-        Path: true
-        Text: true
-        pt0: true
-        pt1: true
-        pt2: true
-        pt3: true
-        pt4: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -266,25 +218,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 1.1365127563476562
+      Distance: 2
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.2695940136909485
-        Y: 0.03899174556136131
-        Z: 0.16638347506523132
+        X: -0.10000000149011612
+        Y: 0.25
+        Z: 0.30000001192092896
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.07999999076128006
+      Pitch: -0.08499989658594131
       Target Frame: base_link
       Value: Orbit (rviz_default_plugins)
-      Yaw: 4.6633148193359375
+      Yaw: 5.130177021026611
     Saved: ~
 Window Geometry:
   Displays:
@@ -298,7 +250,7 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd000000010000000000000274000005bdfc0200000005fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000004400fffffffb000000100044006900730070006c006100790073010000003f000002c8000000cc00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000030d000001c50000019600fffffffb0000000800480065006c0070000000029a0000006e0000006f00fffffffb0000000a0056006900650077007301000004d800000124000000a900ffffff00000786000005bd00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000002b4000005bdfc0200000005fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000004400fffffffb000000100044006900730070006c006100790073010000003f000001d2000000cc00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000217000002bb0000019600fffffffb0000000800480065006c0070000000029a0000006e0000006f00fffffffb0000000a0056006900650077007301000004d800000124000000a900ffffff00000746000005bd00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 2560

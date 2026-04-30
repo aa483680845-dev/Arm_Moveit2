@@ -11,7 +11,7 @@ from moveit_utils import get_moveit_config
 
 def generate_launch_description():
  
-    use_cartesian = LaunchConfiguration("use_Cartesian")
+    use_cartesian = LaunchConfiguration("use_cartesian")
     moveit_config = get_moveit_config()
      
     target_yaml = PathJoinSubstitution([
@@ -30,7 +30,7 @@ def generate_launch_description():
         [
 
             DeclareLaunchArgument(
-                "use_Cartesian",
+                "use_cartesian",
                 default_value="false",
                 description="Use Cartesian path planning"
             ),

@@ -1,10 +1,10 @@
+import sys
+import os
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import ExecuteProcess
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-import sys
-import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from moveit_utils import get_moveit_config
 

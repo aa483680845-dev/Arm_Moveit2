@@ -1,10 +1,11 @@
 #ifndef MOBILE_BASE_HARDWARE_INTERFACE_HPP
 #define MOBILE_BASE_HARDWARE_INTERFACE_HPP
-
 #include <cstdint>
 #include "hardware_interface/system_interface.hpp"
 #include "controller_interface/controller_interface.hpp"
 #include "robot_dm_driver/dm_motor.hpp"
+#include "pinocchio/parsers/urdf.hpp"
+#include "pinocchio/algorithm/rnea.hpp"
 namespace mobile_base_hardware
 {
      constexpr int kNumJoints = 6;
@@ -39,6 +40,10 @@ namespace mobile_base_hardware
 
           damiao_handle *handle;
           device_handle *dev_list[2];
+
+          std::unique_ptr<pinocchio::Model> pin_model_;
+          std::unique_ptr<pinocchio::Data>  pin_data_;
+
      };
 
 }

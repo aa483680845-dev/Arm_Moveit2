@@ -5,6 +5,7 @@
 #include <thread>
 #include <chrono>
 #include "rclcpp/rclcpp.hpp"
+#include <Eigen/Core>
 
 namespace
 {
@@ -49,6 +50,13 @@ namespace mobile_base_hardware
       damiao_handle_destroy(handle);
       return hardware_interface::CallbackReturn::ERROR;
     }
+
+    pin_model_ = std::make_unique<pinocchio::Model>();
+    pinocchio::urdf::buildModelFromXML(info_.original_xml, *pin_model_); // 解析 URDF 并生成 pinocchio 模型
+    pin_data_ = std::make_unique<pinocchio::Data>(*pin_model_);
+    RCLCPP_INFO(rclcpp::get_logger("MobileBaseHardwareInterface"),
+                "Pinocchio model loaded: %d DOF", pin_model_->nq);
+
     return hardware_interface::CallbackReturn::SUCCESS;
   }
   hardware_interface::CallbackReturn MobileBaseHardwareInterface::on_configure(const rclcpp_lifecycle::State &previous_state)
@@ -177,6 +185,13 @@ namespace mobile_base_hardware
     (void)time;
     (void)period;
 
+    // 计算重力补偿矩，结果存于 pin_data_->g
+    Eigen::VectorXd q = Eigen::VectorXd::Zero(pin_model_->nq);
+    for (int i = 0; i < kNumJoints; i++) {
+      q[i] = get_state("joint_" + std::to_string(i + 1) + "/position");
+    }
+    pinocchio::computeGeneralizedGravity(*pin_model_, *pin_data_, q);
+
     static int nan_count[kNumJoints] = {};
     for (int i = 0; i < kNumJoints; i++)
     {
@@ -195,13 +210,11 @@ namespace mobile_base_hardware
         continue;
       }
 
-      // 透传：pos / vel / eff 全部来自控制器，hardware 不做任何计算
-      dm_control_mit(dev_list[0], kMotorIds[i], kp_[i], kd_[i], cmd_pos, 0.0, 0.0);
+      dm_control_mit(dev_list[0], kMotorIds[i], kp_[i], kd_[i], cmd_pos, 0.0, pin_data_->g[i]);
     }
     return hardware_interface::return_type::OK;
   }
 
 }
-
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(mobile_base_hardware::MobileBaseHardwareInterface, hardware_interface::SystemInterface)
