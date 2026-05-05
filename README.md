@@ -15,8 +15,14 @@ src/
 ├── robot_dm_driver/        # 达妙电机底层 CAN 驱动库
 └── tf2_listener/           # 末端执行器 TF 实时监听节点
 ```
+##视频演示
 
----
+https://github.com/user-attachments/assets/d7efbc5a-303b-4419-b8f6-11ab1bbc370e
+
+
+
+
+
 
 ## 各包说明
 
