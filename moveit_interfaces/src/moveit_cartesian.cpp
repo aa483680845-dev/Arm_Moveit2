@@ -111,6 +111,11 @@ int main(int argc, char **argv)
     waypoints.push_back(start_pose); // 最后返回起始点
     RCLCPP_INFO(LOGGER, "Loaded %zu waypoints from config", dx.size());
     moveit_msgs::msg::RobotTrajectory trajectory;
+    auto max_velocity_scaling_factor = get_double("max_velocity_scaling_factor", 0.3);
+    auto max_acceleration_scaling_factor = get_double("max_acceleration_scaling_factor", 0.3);
+    
+    move_group.setMaxVelocityScalingFactor(max_velocity_scaling_factor); // 设置最大速度为 0.5  
+    move_group.setMaxAccelerationScalingFactor(max_acceleration_scaling_factor); // 设置最大加速度为 0.5
     double fraction = move_group.computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory);
 
     RCLCPP_INFO(LOGGER, "Cartesian path success rate: %.2f%%", fraction * 100.0);

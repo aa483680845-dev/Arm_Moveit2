@@ -176,6 +176,7 @@ namespace mobile_base_hardware
     std::string joint = "joint_" + std::to_string(i + 1);
     set_state(joint + "/position", filtered);
     set_state(joint + "/velocity", dq);
+    set_state(joint + "/effort", tau);
   }
 
     return hardware_interface::return_type::OK;
@@ -209,7 +210,7 @@ namespace mobile_base_hardware
         }
         continue;
       }
-
+ 
       dm_control_mit(dev_list[0], kMotorIds[i], kp_[i], kd_[i], cmd_pos, 0.0, pin_data_->g[i]);
     }
     return hardware_interface::return_type::OK;

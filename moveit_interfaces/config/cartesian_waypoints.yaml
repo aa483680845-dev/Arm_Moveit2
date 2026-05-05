@@ -1,16 +1,19 @@
 move_group_interface_tutorial:
   ros__parameters:
     # 各路径点相对于起始点的位置偏移量（米）
-    waypoint_dx: [0.10,  0.15, 0.20, 0.20]
-    waypoint_dy: [0.0,  -0.10,  0.10, 0.0]
-    waypoint_dz: [0.05, 0.10, 0.15,  0.05]
+    waypoint_dx: [0.10,  0.10,  0.20,   0.20, 0.10 ,0.10]
+    waypoint_dy: [0.0,  -0.10,  -0.10,  0.1,  0.10, 0.0]
+    waypoint_dz: [-0.05, -0.05, -0.05, -0.05, -0.05, 0.0]
 
     # 各路径点相对于起始姿态的 RPY 偏移量（弧度），内旋（绕末端自身轴）
-    waypoint_droll:  [0.1, 0.0, 0.0, 0.0]
-    waypoint_dpitch: [0.0, 0.2, 0.0, 0.0]
-    waypoint_dyaw:   [0.0, 0.0, 0.1, 0.0]
+    waypoint_droll:  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    waypoint_dpitch: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    waypoint_dyaw:   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     # 笛卡尔路径规划参数
     eef_step: 0.01               # 末端执行器插值步长（米）
-    jump_threshold: 0.1          # 关节跳变阈值，0.0 表示禁用（仿真环境）
+    jump_threshold: 0.0          # 关节跳变阈值，0.0 表示禁用（仿真环境）
     success_fraction_threshold: 0.8  # 规划成功率阈值
+    # 最大速度和加速度限制
+    max_velocity_scaling_factor: 0.5
+    max_acceleration_scaling_factor: 0.5

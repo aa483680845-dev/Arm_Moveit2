@@ -1,14 +1,14 @@
 move_group_interface_tutorial:
   ros__parameters:
     # 每个路径点的位置（米）
-    waypoints_x: [0.3]
-    waypoints_y: [0.0]
-    waypoints_z: [0.2]
+    target_x: [0.3]
+    target_y: [0.0]
+    target_z: [0.2]
 
     # 每个路径点的姿态（弧度）
-    waypoints_roll:  [0.0]
-    waypoints_pitch: [1.0]
-    waypoints_yaw:   [0.0]
+    target_roll:  [0.0]
+    target_pitch: [1.0]
+    target_yaw:   [0.0]
 
     # true  = RPY 相对于末端自身轴（内旋，右乘）
     # false = RPY 相对于规划坐标系（外旋，绝对姿态）

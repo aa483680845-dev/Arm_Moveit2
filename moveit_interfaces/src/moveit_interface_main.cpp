@@ -66,93 +66,70 @@ int main(int argc, char** argv)
 
 
     /********************************************************************************/
-    // 从参数读取多个路径点
-    std::vector<double> wp_x, wp_y, wp_z, wp_roll, wp_pitch, wp_yaw;
+    // 从参数读取目标点
+    double wp_x = 0.0, wp_y = 0.0, wp_z = 0.0;
+    double wp_roll = 0.0, wp_pitch = 0.0, wp_yaw = 0.0;
     bool use_relative = false;
 
-    move_group_node->get_parameter("waypoints_x",     wp_x);
-    move_group_node->get_parameter("waypoints_y",     wp_y);
-    move_group_node->get_parameter("waypoints_z",     wp_z);
-    move_group_node->get_parameter("waypoints_roll",  wp_roll);
-    move_group_node->get_parameter("waypoints_pitch", wp_pitch);
-    move_group_node->get_parameter("waypoints_yaw",   wp_yaw);
-    move_group_node->get_parameter("use_relative",    use_relative);
-
-    if (wp_x.empty()) {
-        RCLCPP_ERROR(LOGGER, "No waypoints loaded, check target_pose.yaml");
-        rclcpp::shutdown();
-        spin_thread.join();
-        return 1;
-    }
-    RCLCPP_INFO(LOGGER, "Loaded %zu waypoints", wp_x.size());
+    move_group_node->get_parameter("target_x",     wp_x);
+    move_group_node->get_parameter("target_y",     wp_y);
+    move_group_node->get_parameter("target_z",     wp_z);
+    move_group_node->get_parameter("target_roll",  wp_roll);
+    move_group_node->get_parameter("target_pitch", wp_pitch);
+    move_group_node->get_parameter("target_yaw",   wp_yaw);
+    move_group_node->get_parameter("use_relative", use_relative);
 
     /********************************************************************************/
-    // 构建路径点列表
-    std::vector<geometry_msgs::msg::Pose> waypoints;
+    // 构建目标点
+    geometry_msgs::msg::Pose target_pose;
+    target_pose.position.x = wp_x;
+    target_pose.position.y = wp_y;
+    target_pose.position.z = wp_z;
 
-    // use_relative 模式下，从当前末端姿态开始累积旋转
-    tf2::Quaternion q_prev;
-    tf2::fromMsg(move_group.getCurrentPose().pose.orientation, q_prev);
-
-    for (size_t i = 0; i < wp_x.size(); ++i) {
-        geometry_msgs::msg::Pose pose;
-        pose.position.x = wp_x[i];
-        pose.position.y = wp_y[i];
-        pose.position.z = wp_z[i];
-
+    tf2::Quaternion q;
+    if (use_relative) {
+        tf2::Quaternion q_cur;
+        tf2::fromMsg(move_group.getCurrentPose().pose.orientation, q_cur);
         tf2::Quaternion q_delta;
-        q_delta.setRPY(wp_roll[i], wp_pitch[i], wp_yaw[i]);
-
-        tf2::Quaternion q_result;
-        if (use_relative) {
-            // 右乘：绕末端自身轴旋转（内旋），前一点姿态作为基准
-            q_result = (q_prev * q_delta).normalized();
-            q_prev = q_result;
-        } else {
-            // 绝对姿态：相对于规划坐标系（外旋）
-            q_result = q_delta.normalized();
-        }
-        pose.orientation = tf2::toMsg(q_result);
-        waypoints.push_back(pose);
-
-        RCLCPP_INFO(LOGGER, "Waypoint %zu: (%.3f, %.3f, %.3f)", i, wp_x[i], wp_y[i], wp_z[i]);
+        q_delta.setRPY(wp_roll, wp_pitch, wp_yaw);
+        q = (q_cur * q_delta).normalized();
+    } else {
+        q.setRPY(wp_roll, wp_pitch, wp_yaw);
+        q.normalize();
     }
+    target_pose.orientation = tf2::toMsg(q);
+    RCLCPP_INFO(LOGGER, "Target: (%.3f, %.3f, %.3f)", wp_x, wp_y, wp_z);
 
     /********************************************************************************/
-    // 可视化路径点
+    // 可视化目标点
     moveit_visual_tools.deleteAllMarkers();
-    moveit_visual_tools.publishPath(waypoints, rviz_visual_tools::LIME_GREEN, rviz_visual_tools::SMALL);
-    for (std::size_t i = 0; i < waypoints.size(); ++i)
-        moveit_visual_tools.publishAxisLabeled(waypoints[i], "pt" + std::to_string(i), rviz_visual_tools::SMALL);
+    moveit_visual_tools.publishAxisLabeled(target_pose, "target", rviz_visual_tools::SMALL);
     moveit_visual_tools.trigger();
 
     /********************************************************************************/
-    // 关节空间规划：依次规划并执行到每个路径点
-    for (size_t i = 0; i < waypoints.size(); ++i) {
-        move_group.setStartStateToCurrentState();
-        move_group.setPoseTarget(waypoints[i]);
+    // 规划并执行
+    move_group.setStartStateToCurrentState();
+    move_group.setPoseTarget(target_pose);
 
-        prompt("Press 'Next' in the RvizVisualTools windows to plan");
-        draw_title("Planning");
-        moveit_visual_tools.trigger();// 将之前缓存的可视化内容，一次性发送到rviz中显示出来
+    prompt("Press 'Next' in the RvizVisualTools windows to plan");
+    draw_title("Planning");
+    moveit_visual_tools.trigger();
 
-        moveit::planning_interface::MoveGroupInterface::Plan plan;
-        bool success = (move_group.plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
-        RCLCPP_INFO(LOGGER, "Waypoint %zu plan: %s", i, success ? "SUCCESS" : "FAILED");
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
+    bool success = (move_group.plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
+    RCLCPP_INFO(LOGGER, "Plan: %s", success ? "SUCCESS" : "FAILED");
 
-        if (success) {
-            draw_trajectory_tool_path(plan.trajectory);
-            moveit_visual_tools.trigger();
-            prompt("Press 'Next' in the RvizVisualTools windows to execute");
-            draw_title("Executing");
-            moveit_visual_tools.trigger();
-            move_group.execute(plan);
-        } else {
-            draw_title("Planning failed");
-            moveit_visual_tools.trigger();
-            RCLCPP_ERROR(LOGGER, "Planning failed at waypoint %zu, stopping", i);
-            break;
-        }
+    if (success) {
+        draw_trajectory_tool_path(plan.trajectory);
+        moveit_visual_tools.trigger();
+        prompt("Press 'Next' in the RvizVisualTools windows to execute");
+        draw_title("Executing");
+        moveit_visual_tools.trigger();
+        move_group.execute(plan);
+    } else {
+        draw_title("Planning failed");
+        moveit_visual_tools.trigger();
+        RCLCPP_ERROR(LOGGER, "Planning failed");
     }
 
     rclcpp::shutdown();
