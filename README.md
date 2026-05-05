@@ -3,8 +3,9 @@
 基于 ROS 2 + MoveIt 2 的 6 自由度机械臂运动规划项目，支持仿真与真实机器人（达妙电机 CAN 总线驱动）。
 
 ---
-另一个开源项目：本项目算是个子项目，其中使用到的hardware和urdf模型是复用的这个项目：https://github.com/aa483680845-dev/Open_Arm_Mini.git
-             sw文件和详细的说明以及需要的依赖也在这个项目中 ------------------------------>>>>
+另一个开源项目：本项目算是个子项目，其中使用到的hardware和urdf模型是复用的这个项目：https://github.com/aa483680845-dev/Open_Arm_Mini.git 。
+sw文件和详细的说明以及需要的依赖也在这个项目中。 
+
 moveit2安装：https://moveit.ai/install-moveit2/binary/
 
 ## 项目结构
