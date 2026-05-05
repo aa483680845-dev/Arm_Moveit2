@@ -103,5 +103,6 @@ ros2_control `SystemInterface` 硬件接口，对接真实机器人。
 ---
 
 ##未来更新
+
    moveit2内容十分庞大，目前的项目仅用到了其movegroup-C++ API进行简单的轨迹规划和笛卡尔空间规划。
    未来我会更新C++ API，使用其他的规划算法, 加入视觉识别。
