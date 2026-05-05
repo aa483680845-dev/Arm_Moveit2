@@ -80,13 +80,15 @@ ros2 launch moveit_interfaces moveit_main.launch.py
 # 笛卡尔路径规划
 ros2 launch moveit_interfaces moveit_main.launch.py use_cartesian:=true
 ```
+### ros2_control：
+   本项目中使用的控制器是ros2_control官方的轨迹规划控制器：https://control.ros.org/jazzy/doc/ros2_controllers/joint_trajectory_controller/doc/userdoc.html#joint-trajectory-controller
 
 ### my_robot_hardware
 ros2_control `SystemInterface` 硬件接口，对接真实机器人。
 
+- 本项目中的hardware的源文件与遥控制中有些区别，主要是去除了扭矩控制接口，添加了重力补偿部分。
 - 通过 USB2CANFD 与 6 个达妙电机通信
 - 采用 **MIT 模式**（位置 + 速度 + 力矩混合控制），各关节 kp/kd 参数从 URDF `<param>` 读取
-- 使用 **Pinocchio** 进行动力学计算（重力补偿等）
 - 电机 CAN ID：`0x01` ~ `0x06`，对应 `joint_1` ~ `joint_6`
 
 ### robot_dm_driver
@@ -102,7 +104,7 @@ ros2_control `SystemInterface` 硬件接口，对接真实机器人。
 - 将末端位置（xyz）和姿态（四元数）打印到终端，用于调试与状态监控
 ---
 
-##未来更新
+### 未来更新
 
    moveit2内容十分庞大，目前的项目仅用到了其movegroup-C++ API进行简单的轨迹规划和笛卡尔空间规划。
    未来我会更新C++ API，使用其他的规划算法, 加入视觉识别。
