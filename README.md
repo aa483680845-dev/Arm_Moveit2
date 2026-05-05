@@ -16,7 +16,7 @@ src/
 ├── robot_config/           # MoveIt 配置（SRDF、运动学、控制器、关节限位）
 ├── moveit_interfaces/      # 运动规划接口节点（位姿规划 & 笛卡尔路径规划）
 ├── my_robot_hardware/      # ros2_control 硬件接口（CAN 总线 → 达妙电机）
-├── robot_dm_driver/        # [达妙电机底层 CAN 驱动库](https://gitee.com/kit-miao/dm-tools/tree/master/DM_DeviceSDK)
+├── robot_dm_driver/        # 达妙电机底层 CAN 驱动库：https://gitee.com/kit-miao/dm-tools/tree/master/DM_DeviceSDK
 └── tf2_listener/           # 末端执行器 TF 实时监听节点,打印末端相当于坐标
 ```
 ##视频演示
@@ -92,7 +92,6 @@ ros2_control `SystemInterface` 硬件接口，对接真实机器人。
 ### robot_dm_driver
 达妙（Damiao）电机底层 CAN 协议驱动库。
 
-- 支持型号：DM3507、DM4310、DM4340
 - 提供电机注册、使能/失能、MIT 模式指令发送、状态回调解析
 - 状态量（位置/速度/力矩）读写采用互斥锁保护，线程安全
 
