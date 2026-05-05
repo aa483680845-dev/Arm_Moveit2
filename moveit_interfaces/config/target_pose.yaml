@@ -1,15 +1,19 @@
 move_group_interface_tutorial:
   ros__parameters:
     # 每个路径点的位置（米）
-    target_x: [0.3]
-    target_y: [0.0]
-    target_z: [0.2]
+    target_x: 0.3
+    target_y: 0.1
+    target_z: 0.05
 
     # 每个路径点的姿态（弧度）
-    target_roll:  [0.0]
-    target_pitch: [1.0]
-    target_yaw:   [0.0]
+    target_roll:  0.0
+    target_pitch: -1.0
+    target_yaw:   0.0
 
     # true  = RPY 相对于末端自身轴（内旋，右乘）
     # false = RPY 相对于规划坐标系（外旋，绝对姿态）
-    use_relative: false
+    use_relative: true
+
+    #最大速度和加速度限制
+    max_velocity_scaling_factor: 0.3
+    max_acceleration_scaling_factor: 0.3

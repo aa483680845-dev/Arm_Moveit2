@@ -39,45 +39,39 @@ int main(int argc, char** argv)
 
     rclcpp::sleep_for(std::chrono::seconds(1));
     /*********************************************************************************************/
-    auto const draw_title = [&moveit_visual_tools](auto text)
-    {
-        auto const text_pose = []
-        {
-            auto msg = Eigen::Isometry3d::Identity();
-            msg.translation().z() = 0.5; 
-            return msg;
-        }();
-        moveit_visual_tools.publishText(text_pose, text, rviz_visual_tools::WHITE,
-                                        rviz_visual_tools::XLARGE);
-    };
-
-    auto const prompt = [&moveit_visual_tools](auto text)
-    {
-        moveit_visual_tools.prompt(text);
-    };
 
     auto const draw_trajectory_tool_path =
         [&moveit_visual_tools,
          jmg = move_group.getRobotModel()->getJointModelGroup(
              PLANNING_GROUP)](auto const trajectory)
-    {
-        moveit_visual_tools.publishTrajectoryLine(trajectory, jmg);
-    };
 
+    {
+        moveit_visual_tools.publishTrajectoryLine(trajectory, jmg,rviz_visual_tools::LIME_GREEN);
+    };
 
     /********************************************************************************/
     // 从参数读取目标点
-    double wp_x = 0.0, wp_y = 0.0, wp_z = 0.0;
-    double wp_roll = 0.0, wp_pitch = 0.0, wp_yaw = 0.0;
-    bool use_relative = false;
+    auto get_double = [&](const std::string &name, double def)
+    {
+        return move_group_node->has_parameter(name)
+                   ? move_group_node->get_parameter(name).as_double()
+                   : def;
+    };
 
-    move_group_node->get_parameter("target_x",     wp_x);
-    move_group_node->get_parameter("target_y",     wp_y);
-    move_group_node->get_parameter("target_z",     wp_z);
-    move_group_node->get_parameter("target_roll",  wp_roll);
-    move_group_node->get_parameter("target_pitch", wp_pitch);
-    move_group_node->get_parameter("target_yaw",   wp_yaw);
-    move_group_node->get_parameter("use_relative", use_relative);
+    auto get_bool = [&](const std::string &name, bool def)
+    {
+        return move_group_node->has_parameter(name)
+                   ? move_group_node->get_parameter(name).as_bool()
+                   : def;
+    };
+
+    auto wp_x = get_double("target_x", 0.0);
+    auto wp_y = get_double("target_y", 0.0);
+    auto wp_z = get_double("target_z", 0.0);
+    auto wp_roll = get_double("target_roll", 0.0);
+    auto wp_pitch = get_double("target_pitch", 0.0);
+    auto wp_yaw = get_double("target_yaw", 0.0);
+    auto use_relative = get_bool("use_relative", false);
 
     /********************************************************************************/
     // 构建目标点
@@ -108,13 +102,15 @@ int main(int argc, char** argv)
 
     /********************************************************************************/
     // 规划并执行
+    
+    auto max_velocity_scaling_factor = get_double("max_velocity_scaling_factor", 0.3);
+    auto max_acceleration_scaling_factor = get_double("max_acceleration_scaling_factor", 0.3);
+    
+    move_group.setMaxVelocityScalingFactor(max_velocity_scaling_factor); // 设置最大速度为 0.5  
+    move_group.setMaxAccelerationScalingFactor(max_acceleration_scaling_factor); // 设置最大加速度为 0.5
+    
     move_group.setStartStateToCurrentState();
     move_group.setPoseTarget(target_pose);
-
-    prompt("Press 'Next' in the RvizVisualTools windows to plan");
-    draw_title("Planning");
-    moveit_visual_tools.trigger();
-
     moveit::planning_interface::MoveGroupInterface::Plan plan;
     bool success = (move_group.plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
     RCLCPP_INFO(LOGGER, "Plan: %s", success ? "SUCCESS" : "FAILED");
@@ -122,12 +118,8 @@ int main(int argc, char** argv)
     if (success) {
         draw_trajectory_tool_path(plan.trajectory);
         moveit_visual_tools.trigger();
-        prompt("Press 'Next' in the RvizVisualTools windows to execute");
-        draw_title("Executing");
-        moveit_visual_tools.trigger();
         move_group.execute(plan);
     } else {
-        draw_title("Planning failed");
         moveit_visual_tools.trigger();
         RCLCPP_ERROR(LOGGER, "Planning failed");
     }

@@ -7,7 +7,7 @@ default_acceleration_scaling_factor: 0.1
 
 # Specific joint properties can be changed with the keys [max_position, min_position, max_velocity, max_acceleration]
 # Joint limits can be turned off with [has_velocity_limits, has_acceleration_limits]
-joint_limits:
+joint_limits:  
   joint_1:
     has_velocity_limits: true
     max_velocity: 2.0
@@ -38,3 +38,6 @@ joint_limits:
     max_velocity: 2.0
     has_acceleration_limits: true
     max_acceleration: 1.0
+
+    # 这里必须是double类型，不能是int类型，否则会报错。
+    # limits必须为ture,不能是flase，否则会报错。

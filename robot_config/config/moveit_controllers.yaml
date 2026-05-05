@@ -15,5 +15,5 @@ moveit_simple_controller_manager:
       - joint_4
       - joint_5
       - joint_6
-    action_ns: follow_joint_trajectory
+    action_ns: follow_joint_trajectory  # 生成的代码中没有这两行，需要加上
     default: true
