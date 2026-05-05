@@ -3,6 +3,9 @@
 基于 ROS 2 + MoveIt 2 的 6 自由度机械臂运动规划项目，支持仿真与真实机器人（达妙电机 CAN 总线驱动）。
 
 ---
+另一个开源项目：本项目算是个子项目，其中使用到的hardware和urdf模型是复用的这个项目：https://github.com/aa483680845-dev/Open_Arm_Mini.git
+             sw文件和详细的说明以及需要的依赖也在这个项目中 ------------------------------>>>>
+moveit2安装：https://moveit.ai/install-moveit2/binary/
 
 ## 项目结构
 
@@ -12,8 +15,8 @@ src/
 ├── robot_config/           # MoveIt 配置（SRDF、运动学、控制器、关节限位）
 ├── moveit_interfaces/      # 运动规划接口节点（位姿规划 & 笛卡尔路径规划）
 ├── my_robot_hardware/      # ros2_control 硬件接口（CAN 总线 → 达妙电机）
-├── robot_dm_driver/        # 达妙电机底层 CAN 驱动库
-└── tf2_listener/           # 末端执行器 TF 实时监听节点
+├── robot_dm_driver/        # [达妙电机底层 CAN 驱动库](https://gitee.com/kit-miao/dm-tools/tree/master/DM_DeviceSDK)
+└── tf2_listener/           # 末端执行器 TF 实时监听节点,打印末端相当于坐标
 ```
 ##视频演示
 
@@ -99,17 +102,6 @@ ros2_control `SystemInterface` 硬件接口，对接真实机器人。
 - 将末端位置（xyz）和姿态（四元数）打印到终端，用于调试与状态监控
 ---
 
-## 依赖
-
-- ROS 2 Jazzy（或更高版本）
-- MoveIt 2
-- ros2_control / ros2_controllers
-- moveit_visual_tools / rviz_visual_tools
-- tf2 / tf2_ros
-- Pinocchio（`my_robot_hardware` 重力补偿计算）
-- 达妙 CAN SDK（`robot_dm_driver`）
-
----
-
-
-```
+##未来更新
+   moveit2内容十分庞大，目前的项目仅用到了其movegroup-C++ API进行简单的轨迹规划和笛卡尔空间规划。
+   未来我会更新C++ API，使用其他的规划算法, 加入视觉识别。
