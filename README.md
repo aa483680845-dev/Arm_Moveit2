@@ -19,7 +19,10 @@ src/
 ├── robot_dm_driver/        # 达妙电机底层 CAN 驱动库：https://gitee.com/kit-miao/dm-tools/tree/master/DM_DeviceSDK
 └── tf2_listener/           # 末端执行器 TF 实时监听节点,打印末端相当于坐标
 ```
-##视频演示
+### 外观展示
+<img width="4096" height="1844" alt="机械臂" src="https://github.com/user-attachments/assets/c018df03-22ee-40a8-9a27-1fb1f20ec269" />
+
+### 视频演示
 
 https://github.com/user-attachments/assets/d7efbc5a-303b-4419-b8f6-11ab1bbc370e
 
@@ -103,6 +106,9 @@ ros2_control `SystemInterface` 硬件接口，对接真实机器人。
 - 以 10 Hz 频率查询 `base_link` → `link_6` 的 TF 变换
 - 将末端位置（xyz）和姿态（四元数）打印到终端，用于调试与状态监控
 ---
+
+### 注意点
+    需要注意 tf2_listener没有写进launch启动文件，所以如果想打印末端姿态，需要自己手动启动，或者写进launch.
 
 ### 未来更新
 
