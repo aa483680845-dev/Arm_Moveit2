@@ -51,7 +51,7 @@ MoveIt 2 配置包，由 [MoveIt Setup Assistant](https://moveit.picknik.ai/main
 | `pilz_cartesian_limits.yaml` | Pilz 规划器笛卡尔空间速度/加速度限制 |
 
 moveit设置助手完成了大部分的工作，可以说使用完成MoveIt Setup Assistant配置，就可以使用模拟组件规划机械臂了，
-如果先要控制真实的硬件，需要自己写hardware interface插件，我写的插件在`my_robot_hardware`包中。
+如果想要控制真实的硬件，需要自己写hardware interface插件，我写的插件在`my_robot_hardware`包中。
 
 ### moveit_interfaces
 运动规划接口节点，通过 launch 参数 `use_cartesian` 切换两种规划模式：
