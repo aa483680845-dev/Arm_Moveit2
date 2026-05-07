@@ -63,8 +63,7 @@ moveit设置助手完成了大部分的工作，可以说使用完成MoveIt Setu
 - 从参数读取目标位置（x/y/z）和姿态（roll/pitch/yaw）
 - 支持绝对姿态（`use_relative: false`）和相对末端自身轴的增量姿态（`use_relative: true`）
 - 调用 MoveIt OMPL 规划器规划关节空间路径
-- 在 RViz 中可视化目标点与规划轨迹，手动确认后执行
-
+  
 **模式二：[笛卡尔路径规划](https://moveit.picknik.ai/main/doc/examples/move_group_interface/move_group_interface_tutorial.html#move-group-c-interface)**（`use_cartesian:=true`）
 
 节点：`moveit_cartesian`，配置文件：`config/cartesian_waypoints.yaml`
